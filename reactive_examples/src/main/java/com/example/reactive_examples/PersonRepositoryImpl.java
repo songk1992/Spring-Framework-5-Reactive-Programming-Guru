@@ -4,6 +4,8 @@ import com.example.reactive_examples.domain.Person;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 public class PersonRepositoryImpl implements PersonRepository{
 
     Person kimc = new Person(1, "C", "Kim");
@@ -13,7 +15,7 @@ public class PersonRepositoryImpl implements PersonRepository{
 
     @Override
     public Mono<Person> getById(Integer id) {
-        return Mono.just(kimc);
+        return findAll().filter(person -> Objects.equals(person.getId(), id)).next();
     }
 
     @Override
