@@ -1,10 +1,13 @@
 package com.example.reactivebeerclient.client;
 
 import com.example.reactivebeerclient.config.WebClientConfig;
+import com.example.reactivebeerclient.model.BeerDto;
 import com.example.reactivebeerclient.model.BeerPagedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +49,27 @@ class BeerClientImplTest {
 
     @Test
     void getBeerById() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10, null, null, null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+        UUID beerId = pagedList.toList().get(0).getId();
+
+        Mono<BeerDto> beerDtoMono = beerClient.getBeerById(beerId, true);
+        assertThat(beerDtoMono).isNotNull();
+        BeerDto beerDto = beerDtoMono.block();
+        System.out.println(beerDto);
+        assertThat(beerDto.getId()).isEqualTo(beerId);
+    }
+
+    @Test
+    void getBeerByUPC() {
+        Mono<BeerPagedList> beerPagedListMono = beerClient.listBeers(1, 10, null, null, null);
+        BeerPagedList pagedList = beerPagedListMono.block();
+        String beerUpc = pagedList.toList().get(0).getUpc();
+
+        Mono<BeerDto> beerDtoMono = beerClient.getBeerByUPC(beerUpc);
+        BeerDto beerDto = beerDtoMono.block();
+        System.out.println(beerDto);
+        assertThat(beerDto.getUpc()).isEqualTo(beerUpc);
     }
 
 
@@ -61,7 +85,4 @@ class BeerClientImplTest {
     void deleteBeerById() {
     }
 
-    @Test
-    void getBeerByUPC() {
-    }
 }
