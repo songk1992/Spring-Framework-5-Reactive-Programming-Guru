@@ -6,7 +6,7 @@ import guru.springframework.sfgrestbrewery.web.model.BeerDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -17,7 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@WebMvcTest(BeerController.class)
+@WebFluxTest(BeerController.class)
 public class BeerControllerTest {
 
     @Autowired
@@ -43,7 +43,8 @@ public class BeerControllerTest {
         given(beerService.getById(any(), any())).willReturn(validBeer);
 
         webTestClient.get()
-                .uri("api/v1/beer").accept(MediaType.APPLICATION_JSON)
+                .uri("/api/v1/beer/" + beerId)
+                .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(BeerDto.class)
