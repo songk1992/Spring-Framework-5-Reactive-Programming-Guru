@@ -7,7 +7,9 @@ import guru.springframework.sfgrestbrewery.web.model.BeerPagedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
@@ -16,14 +18,14 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
-@WebFluxTest(BeerController.class)
-public class BeerControllerTest {
+@SpringBootTest
+@AutoConfigureWebTestClient
+class BeerControllerTest {
 
     @Autowired
     WebTestClient webTestClient;
@@ -43,22 +45,20 @@ public class BeerControllerTest {
     }
 
     @Test
-    void listBeers(){
-        List<BeerDto> beerDtoList = Arrays.asList(validBeer);
+    void listBeers() {
+        List<BeerDto> beerList = Arrays.asList(validBeer);
 
-        BeerPagedList beerPagedList = new BeerPagedList(beerDtoList, PageRequest.of(1,1), beerDtoList.size());
+        BeerPagedList beerPagedList = new BeerPagedList(beerList, PageRequest.of(1,1), beerList.size());
 
-        given(beerService.listBeers(any(),any(),any(),any())).willReturn(beerPagedList);
+        given(beerService.listBeers(any(), any(), any(), any())).willReturn(Mono.just(beerPagedList));
 
         webTestClient.get()
-                .uri("/api/v1/beer" )
+                .uri("/api/v1/beer")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(BeerPagedList.class);
-
     }
-
 
     @Test
     void getBeerByUPC() {
@@ -86,4 +86,21 @@ public class BeerControllerTest {
                 .expectBody(BeerDto.class)
                 .value(beerDto -> beerDto.getBeerName(), equalTo(validBeer.getBeerName()));
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -5,6 +5,7 @@ import guru.springframework.sfgrestbrewery.web.model.BeerDto;
 import guru.springframework.sfgrestbrewery.web.model.BeerPagedList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@AutoConfigureWebTestClient
 public class WebClientIT {
 
     public static final String BASE_URL = "http://localhost:8080";
@@ -84,9 +86,6 @@ public class WebClientIT {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve().bodyToMono(BeerPagedList.class);
 
-
-//        BeerPagedList pagedList = beerPagedListMono.block();
-//        pagedList.getContent().forEach(beerDto -> System.out.println(beerDto.toString()));
         beerPagedListMono.publishOn(Schedulers.parallel()).subscribe(beerPagedList -> {
 
             beerPagedList.getContent().forEach(beerDto -> System.out.println(beerDto.toString()));
@@ -94,6 +93,7 @@ public class WebClientIT {
             countDownLatch.countDown();
         });
 
+        countDownLatch.await(1000, TimeUnit.MILLISECONDS);
         assertThat(countDownLatch.getCount()).isEqualTo(0);
     }
 }
